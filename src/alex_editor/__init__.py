@@ -1,1 +1,1 @@
-from alex_ide.base import *
+from alex_editor.base import *
