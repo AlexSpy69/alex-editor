@@ -1,7 +1,7 @@
 import subprocess
 
-def execute_command(c) -> str:
-    command = "gnome-terminal -- " + c
+def execute_command(c, wd) -> str:
+    command = f"gnome-terminal --working-directory={wd} -- {c}"
     print(command)
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()

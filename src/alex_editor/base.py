@@ -7,6 +7,7 @@ import sys
 import alex_editor.tools as tools
 import alex_editor.syntax_highlighter as syntax_highlighter
 import alex_editor.util as util
+import alex_editor.command_palette as command_palette
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -22,6 +23,7 @@ class MainWindow(QMainWindow):
         self.root_open_dir = "/home/alexandru/Documents"
         self.open_dir = self.root_open_dir + "/GitHub"
         self.opened_file = ""
+        self.opened_file_type = "Plain text"
 
         # Main Widget and Layout
         self.mainw = QWidget(self)
@@ -59,15 +61,19 @@ class MainWindow(QMainWindow):
         self.indent_level = 0
         #self.textbox.textChanged.connect(self.tb_add_indent)
 
+        # Command palette
+        self.command_p = command_palette.CommandPalette()
+
         # Shortcuts
         QShortcut("Ctrl+O", self).activated.connect(self.f_open_dir)
         QShortcut("Ctrl+S", self).activated.connect(self.f_save_c_file)
+        QShortcut("Ctrl+Shift+B", self).activated.connect(self.p_show)
 
         # Show
         self.setCentralWidget(self.mainw)
     
     def update(self):
-        self.textbox.update(self.opened_file)
+        pass
 
     def tb_add_indent(self):
         if self.textbox.tb.toPlainText().endswith(':\n') or self.textbox.tb.toPlainText().endswith(self.space * (self.indent_level+1)):
@@ -91,11 +97,20 @@ class MainWindow(QMainWindow):
             self.f_next_file()
             if self.opened_file.endswith(".py"):
                 self.textbox.highlighter = syntax_highlighter.Python(self.textbox.tb.document())
+                self.opened_file_type = "Python"
             elif self.opened_file.endswith(".c") or self.opened_file.endswith(".cpp") or \
                 self.opened_file.endswith(".h") or self.opened_file.endswith(".hpp"):
                 self.textbox.highlighter = syntax_highlighter.Cpp(self.textbox.tb.document())
+                self.opened_file_type = "C/C++"
+            if self.opened_file.endswith(".sh"):
+                self.textbox.highlighter = syntax_highlighter.Nothing(self.textbox.tb.document())
+                self.opened_file_type = "sh"
             else:
                 self.textbox.highlighter = syntax_highlighter.Nothing(self.textbox.tb.document())
+                self.opened_file_type = "Plain text"
+        self.textbox.update(self.opened_file)
+        self.command_p.opened_file = self.opened_file
+        self.command_p.opened_file_type = self.opened_file_type
     
     def f_next_dir(self):
         self.open_dir += self.filebrowser.listwidget.selectedItems()[0].text().split("DIR    ")[1]
@@ -123,6 +138,12 @@ with open("{self.opened_file}", "w") as f:
         self.open_dir = self.open_dir.rpartition("/")[0] if self.open_dir != self.root_open_dir else self.open_dir
         self.filebrowser.update(self.open_dir, self.root_open_dir)
 
+    def p_show(self):
+        self.command_p.show()
+        self.command_p.activateWindow()
+        self.command_p.commands = self.command_p.actions[self.opened_file_type]
+        self.command_p.update_commands()
+        self.command_p.input_field.setPlaceholderText(f"Actions for {self.opened_file_type} file")
 
 def main():
     app = QApplication(sys.argv)
