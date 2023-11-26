@@ -3,8 +3,8 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 
 class Python(QSyntaxHighlighter):
-    def __init__(self, document):
-        super().__init__(document)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.highlighting_rules = []
 
         # Define text formats for different types of highlighting
@@ -51,8 +51,8 @@ class Python(QSyntaxHighlighter):
 
 
 class Cpp(QSyntaxHighlighter):
-    def __init__(self, document):
-        super().__init__(document)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.highlightingRules = []
 
@@ -78,5 +78,5 @@ class Cpp(QSyntaxHighlighter):
 
 
 class Nothing(QSyntaxHighlighter):
-    def __init__(self, document):
-        QSyntaxHighlighter.__init__(self, document)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, *kwargs)
