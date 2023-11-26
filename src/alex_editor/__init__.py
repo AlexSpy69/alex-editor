@@ -1,1 +1,1 @@
-from src.alex_ide.base import *
+from alex_ide.base import *
