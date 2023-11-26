@@ -68,7 +68,6 @@ class MainWindow(QMainWindow):
     
     def update(self):
         self.textbox.update(self.opened_file)
-        self.workspace_tools.update(self.opened_file)
 
     def tb_add_indent(self):
         if self.textbox.tb.toPlainText().endswith(':\n') or self.textbox.tb.toPlainText().endswith(self.space * (self.indent_level+1)):
