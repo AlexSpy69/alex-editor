@@ -16,7 +16,7 @@ class CommandPalette(QWidget):
         self.actions = {"Plain text": {}, "Python": {"Run Python script": "",
             "Compile": "", "Compile and run": ""}, "C/C++": {"Compile": "",
             "Compile and run": "", "Make": "", "Make and run": ""},
-            "sh": {"Run": "chmod +x !fn && ./!fn"}}
+            "sh": {"chmod +x": "chmod +x !fp/!fn", "Run": "!fp/!fn"}}
 
         self.init_ui()
 
@@ -52,7 +52,7 @@ class CommandPalette(QWidget):
             item = QListWidgetItem(command)
             self.list_widget.addItem(item)
 
-    def filter_commands(self, text):
+    def filter_commands(self, text): 
         # Filter commands based on the input text
         self.list_widget.clear()
         for command in self.commands:

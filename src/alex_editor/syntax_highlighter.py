@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import *
 
 class Python(QSyntaxHighlighter):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(QSyntaxHighlighter, self).__init__(*args, **kwargs)
         self.highlighting_rules = []
 
         # Define text formats for different types of highlighting
@@ -52,7 +52,7 @@ class Python(QSyntaxHighlighter):
 
 class Cpp(QSyntaxHighlighter):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(QSyntaxHighlighter, self).__init__(*args, **kwargs)
 
         self.highlightingRules = []
 
@@ -77,6 +77,49 @@ class Cpp(QSyntaxHighlighter):
                 match = expression.match(text, start + length)
 
 
+class Sh(QSyntaxHighlighter):
+    def __init__(self, *args, **kwargs):
+        super(QSyntaxHighlighter, self).__init__(*args, **kwargs)
+
+        self.highlighting_rules = []
+
+        # Keyword format
+        keyword_format = QTextCharFormat()
+        keyword_format.setForeground(QColor("#569CD6"))
+        keyword_format.setFontWeight(QFont.Weight.Bold)
+        keyword_list = [
+            r'\bif\b', r'\bthen\b', r'\belse\b', r'\bfi\b',
+            r'\bfor\b', r'\bin\b', r'\bdo\b', r'\bdone\b',
+            r'\bwhile\b', r'\bdone\b', r'\buntil\b', r'\bdone\b',
+            r'\bcase\b', r'\besac\b', r'\bfunction\b'
+        ]
+        for pattern in keyword_list:
+            self.highlighting_rules.append((QRegularExpression(pattern), keyword_format))
+
+        # Comment format
+        comment_format = QTextCharFormat()
+        comment_format.setForeground(QColor("#57A64A"))
+        self.highlighting_rules.append((QRegularExpression(r'#[^\n]*'), comment_format))
+
+        # String format
+        string_format = QTextCharFormat()
+        string_format.setForeground(QColor("#CE9178"))
+        self.highlighting_rules.append((QRegularExpression(r'".*?"'), string_format))
+        self.highlighting_rules.append((QRegularExpression(r'\'.*?\''), string_format))
+
+        # Number format
+        number_format = QTextCharFormat()
+        number_format.setForeground(QColor("#B5CEA8"))
+        self.highlighting_rules.append((QRegularExpression(r'\b\d+\b'), number_format))
+
+    def highlightBlock(self, text):
+        for pattern, format in self.highlighting_rules:
+            match_iterator = pattern.globalMatch(text)
+            while match_iterator.hasNext():
+                match = match_iterator.next()
+                self.setFormat(match.capturedStart(), match.capturedLength(), format)
+
+
 class Nothing(QSyntaxHighlighter):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, *kwargs)
+        super(QSyntaxHighlighter, self).__init__(*args, *kwargs)

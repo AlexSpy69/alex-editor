@@ -8,7 +8,7 @@ import os
 
 class FileBrowser(QFrame):
     def __init__(self, parent):
-        QFrame.__init__(self, parent)
+        super().__init__()
         layout = QVBoxLayout()
         self.rootlb = QLabel(parent)
         self.currentlb = QLabel(parent)
@@ -20,7 +20,7 @@ class FileBrowser(QFrame):
         layout.addWidget(self.listwidget)
         self.setLayout(layout)
     
-    def update(self, folder:str, root:str):
+    def update(self, folder:str, root:str) -> None:
         # root label
         self.rootlb.setText(f"Root directory: {root}")
         self.currentlb.setText(f"Current directory: {folder.split(root)[1]}")
@@ -47,7 +47,7 @@ class FileBrowser(QFrame):
 
 class TextBox(QFrame):
     def __init__(self, parent):
-        QFrame.__init__(self, parent)
+        super().__init__(parent)
         layout = QVBoxLayout()
         self.setLayout(layout)
 
@@ -58,8 +58,18 @@ class TextBox(QFrame):
         self.highlighter = syntax_highlighter.Python(self.tb.document())
         layout.addWidget(self.tb)
 
-    def update(self, opened_file_name):
+    def update(self, opened_file_name) -> None:
         if opened_file_name:
             self.ofile_lb.setText(f"Opened file: {opened_file_name}")
         else:
             self.ofile_lb.setText(f"No file opened")
+
+
+def entry_window(caption) -> str:
+    text, ok = QInputDialog.getText(QWidget(), "Entry window",
+        caption)
+
+    if ok:
+        return text
+    else:
+        return ""

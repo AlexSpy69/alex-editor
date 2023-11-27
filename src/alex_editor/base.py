@@ -4,7 +4,7 @@ from PyQt6.QtGui import *
 
 import sys
 
-import alex_editor.tools as tools
+import alex_editor.widgets as widgets
 import alex_editor.syntax_highlighter as syntax_highlighter
 import alex_editor.util as util
 import alex_editor.command_palette as command_palette
@@ -37,8 +37,11 @@ class MainWindow(QMainWindow):
         dir_open.triggered.connect(self.f_open_dir)
         file_menu.addAction(dir_open)
         file_menu.addSeparator()
+        create_n_file = QAction("Create New File...", self)
+        create_n_file.triggered.connect(self.f_create_new_file)
         save_c_file = QAction("Save Current File...", self)
         save_c_file.triggered.connect(self.f_save_c_file)
+        file_menu.addAction(create_n_file)
         file_menu.addAction(save_c_file)
 
         # Tools
@@ -46,14 +49,14 @@ class MainWindow(QMainWindow):
         self.layout_.addWidget(tab_tools)
 
         # File Browser
-        self.filebrowser = tools.FileBrowser(self)
+        self.filebrowser = widgets.FileBrowser(self)
         self.filebrowser.dirupbt.clicked.connect(self.f_directory_up)
         self.filebrowser.listwidget.clicked.connect(self.f_lb_select)
         self.filebrowser.update(self.open_dir, self.root_open_dir)
         tab_tools.addTab(self.filebrowser, "File Browser")
 
         # Text Box
-        self.textbox = tools.TextBox(self)
+        self.textbox = widgets.TextBox(self)
         self.layout_.addWidget(self.textbox)
 
         # Indentation
@@ -103,10 +106,10 @@ class MainWindow(QMainWindow):
                 self.textbox.highlighter = syntax_highlighter.Cpp(self.textbox.tb.document())
                 self.opened_file_type = "C/C++"
             if self.opened_file.endswith(".sh"):
-                self.textbox.highlighter = syntax_highlighter.Nothing(self.textbox.tb.document())
+                self.textbox.highlighter = syntax_highlighter.Sh(self.textbox.tb.document())
                 self.opened_file_type = "sh"
             else:
-                self.textbox.highlighter = syntax_highlighter.Nothing(self.textbox.tb.document())
+                self.textbox.highlighter = syntax_highlighter.Sh(self.textbox.tb.document())
                 self.opened_file_type = "Plain text"
         self.textbox.update(self.opened_file)
         self.command_p.opened_file = self.opened_file
@@ -136,6 +139,13 @@ with open("{self.opened_file}", "w") as f:
     
     def f_directory_up(self):
         self.open_dir = self.open_dir.rpartition("/")[0] if self.open_dir != self.root_open_dir else self.open_dir
+        self.filebrowser.update(self.open_dir, self.root_open_dir)
+
+    def f_create_new_file(self):
+        ew = widgets.entry_window("Enter file name")
+        if ew == "":
+            return
+        open(self.open_dir + "/" + ew, "w").close()
         self.filebrowser.update(self.open_dir, self.root_open_dir)
 
     def p_show(self):
