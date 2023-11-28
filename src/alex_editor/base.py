@@ -3,6 +3,8 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 
 import sys
+import os
+import shutil
 
 import alex_editor.widgets as widgets
 import alex_editor.syntax_highlighter as syntax_highlighter
@@ -33,16 +35,24 @@ class MainWindow(QMainWindow):
         # Menubar
         menu = self.menuBar()
         file_menu = menu.addMenu("&File")
-        dir_open = QAction("Open Directory..", self)
+        dir_open = QAction("Open Root Directory...", self)
         dir_open.triggered.connect(self.f_open_dir)
+        create_n_dir = QAction("Create new directory", self)
+        delete_c_dir = QAction("Delete current directory", self)
+        delete_c_dir.triggered.connect(self.f_delete_c_dir)
         file_menu.addAction(dir_open)
+        file_menu.addAction(create_n_dir)
+        file_menu.addAction(delete_c_dir)
         file_menu.addSeparator()
-        create_n_file = QAction("Create New File...", self)
+        create_n_file = QAction("Create New File", self)
         create_n_file.triggered.connect(self.f_create_new_file)
-        save_c_file = QAction("Save Current File...", self)
+        save_c_file = QAction("Save Current File", self)
         save_c_file.triggered.connect(self.f_save_c_file)
+        delete_c_file = QAction("Delete Current File", self)
+        delete_c_file.triggered.connect(self.f_delete_c_file)
         file_menu.addAction(create_n_file)
         file_menu.addAction(save_c_file)
+        file_menu.addAction(delete_c_file)
 
         # Tools
         tab_tools = QTabWidget(self)
@@ -66,6 +76,7 @@ class MainWindow(QMainWindow):
 
         # Command palette
         self.command_p = command_palette.CommandPalette()
+        self.command_p.list_widget.itemActivated.connect(lambda: self.filebrowser.update(self.open_dir, self.root_open_dir))
 
         # Shortcuts
         QShortcut("Ctrl+O", self).activated.connect(self.f_open_dir)
@@ -98,25 +109,27 @@ class MainWindow(QMainWindow):
             self.f_next_dir()
         elif self.filebrowser.listwidget.selectedItems()[0].text().startswith("FILE"):
             self.f_next_file()
-            if self.opened_file.endswith(".py"):
-                self.textbox.highlighter = syntax_highlighter.Python(self.textbox.tb.document())
-                self.opened_file_type = "Python"
-            elif self.opened_file.endswith(".c") or self.opened_file.endswith(".cpp") or \
-                self.opened_file.endswith(".h") or self.opened_file.endswith(".hpp"):
-                self.textbox.highlighter = syntax_highlighter.Cpp(self.textbox.tb.document())
-                self.opened_file_type = "C/C++"
-            if self.opened_file.endswith(".sh"):
-                self.textbox.highlighter = syntax_highlighter.Sh(self.textbox.tb.document())
-                self.opened_file_type = "sh"
-            else:
-                self.textbox.highlighter = syntax_highlighter.Sh(self.textbox.tb.document())
-                self.opened_file_type = "Plain text"
+            self.opened_file_type = util.get_file_type(self.filebrowser.selected_item())
+            match self.opened_file_type:
+                case "Python":
+                    self.textbox.highlighter = syntax_highlighter.Python(self.textbox.tb.document())
+                case "C/C++":
+                    self.textbox.highlighter = syntax_highlighter.Cpp(self.textbox.tb.document())
+                case "sh":
+                    self.textbox.highlighter = syntax_highlighter.Sh(self.textbox.tb.document())
+                case "Plain text":
+                    self.textbox.highlighter = syntax_highlighter.Sh(self.textbox.tb.document())
         self.textbox.update(self.opened_file)
         self.command_p.opened_file = self.opened_file
         self.command_p.opened_file_type = self.opened_file_type
     
     def f_next_dir(self):
         self.open_dir += self.filebrowser.listwidget.selectedItems()[0].text().split("DIR    ")[1]
+        self.filebrowser.update(self.open_dir, self.root_open_dir)
+
+    def f_delete_c_dir(self):
+        shutil.rmtree(self.open_dir)
+        self.f_directory_up()
         self.filebrowser.update(self.open_dir, self.root_open_dir)
     
     def f_next_file(self):
@@ -147,6 +160,12 @@ with open("{self.opened_file}", "w") as f:
             return
         open(self.open_dir + "/" + ew, "w").close()
         self.filebrowser.update(self.open_dir, self.root_open_dir)
+
+    def f_delete_c_file(self):
+        os.remove(self.open_dir + "/" + self.filebrowser.selected_item())
+        self.filebrowser.update(self.open_dir, self.root_open_dir)
+        self.textbox.ofile_lb.setText(
+            self.textbox.ofile_lb.text() + "    <b><i>Deleted</i></b>")
 
     def p_show(self):
         self.command_p.show()

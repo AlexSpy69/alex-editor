@@ -17,3 +17,16 @@ def run_py_code(command) -> str:
         return ""
     except Exception as e:
         return str(e)
+
+def get_file_type(filename) -> str:
+    if filename.endswith(".py"):
+        return "Python"
+    elif filename.endswith(".c") or filename.endswith(".cpp") or \
+        filename.endswith(".h") or filename.endswith(".hpp"):
+        return "C/C++"
+    elif filename.endswith(".sh"):
+        return "sh"
+    elif filename.endswith(".txt"):
+        return "Plain text"
+    else:
+        return filename.split(".")[-1]

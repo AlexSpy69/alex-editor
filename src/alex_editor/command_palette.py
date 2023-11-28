@@ -13,10 +13,10 @@ class CommandPalette(QWidget):
         self.opened_file = ""
         self.opened_file_type = "Plain text"
         self.commands = {}
-        self.actions = {"Plain text": {}, "Python": {"Run Python script": "",
-            "Compile": "", "Compile and run": ""}, "C/C++": {"Compile": "",
+        self.actions = {"Plain text": {}, "Python": {"Run": "python3 !fp/!fn",
+            "Compile": "python3 -m py_compile !fp/!fn"}, "C/C++": {"Compile": "",
             "Compile and run": "", "Make": "", "Make and run": ""},
-            "sh": {"chmod +x": "chmod +x !fp/!fn", "Run": "!fp/!fn"}}
+            "sh": {"Gain execution permission": "chmod +x !fp/!fn", "Run": "!fp/!fn"}}
 
         self.init_ui()
 

@@ -44,6 +44,9 @@ class FileBrowser(QFrame):
         for count, item in enumerate(dirlist):
             self.listwidget.insertItem(count, item)
 
+    def selected_item(self) -> str:
+        return self.listwidget.selectedItems()[0].text().split("    ")[1]
+
 
 class TextBox(QFrame):
     def __init__(self, parent):
@@ -55,7 +58,7 @@ class TextBox(QFrame):
         layout.addWidget(self.ofile_lb)
         self.tb = QPlainTextEdit(self)
         self.tb.setFont(QFont("Monospace"))
-        self.highlighter = syntax_highlighter.Python(self.tb.document())
+        self.highlighter = syntax_highlighter.Sh(self.tb.document())
         layout.addWidget(self.tb)
 
     def update(self, opened_file_name) -> None:
