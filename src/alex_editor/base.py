@@ -37,8 +37,9 @@ class MainWindow(QMainWindow):
         file_menu = menu.addMenu("&File")
         dir_open = QAction("Open Root Directory...", self)
         dir_open.triggered.connect(self.f_open_dir)
-        create_n_dir = QAction("Create new directory", self)
-        delete_c_dir = QAction("Delete current directory", self)
+        create_n_dir = QAction("Create New Directory", self)
+        create_n_dir.triggered.connect(self.f_create_new_dir)
+        delete_c_dir = QAction("Delete Current Directory", self)
         delete_c_dir.triggered.connect(self.f_delete_c_dir)
         file_menu.addAction(dir_open)
         file_menu.addAction(create_n_dir)
@@ -67,6 +68,7 @@ class MainWindow(QMainWindow):
 
         # Text Box
         self.textbox = widgets.TextBox(self)
+        self.textbox.tb.textChanged.connect(self.tb_text_changed)
         self.layout_.addWidget(self.textbox)
 
         # Indentation
@@ -88,6 +90,15 @@ class MainWindow(QMainWindow):
     
     def update(self):
         pass
+
+    def tb_text_changed(self):
+        if self.opened_file == "":
+            return
+        with open(self.opened_file) as f:
+            if self.textbox.tb.toPlainText() == f.read():
+                self.setWindowTitle("ALEX IDE")
+            else:
+                self.setWindowTitle("ALEX IDE - Unsaved changes")
 
     def tb_add_indent(self):
         if self.textbox.tb.toPlainText().endswith(':\n') or self.textbox.tb.toPlainText().endswith(self.space * (self.indent_level+1)):
@@ -131,6 +142,13 @@ class MainWindow(QMainWindow):
         shutil.rmtree(self.open_dir)
         self.f_directory_up()
         self.filebrowser.update(self.open_dir, self.root_open_dir)
+
+    def f_create_new_dir(self):
+        ew = widgets.entry_window("Enter directory name")
+        if ew == "":
+            return
+        os.makedirs(ew)
+        self.filebrowser.update(self.open_dir, self.root_open_dir)
     
     def f_next_file(self):
         fn = self.filebrowser.listwidget.selectedItems()[0].text().split("FILE    ")[1]
@@ -148,7 +166,10 @@ with open("{self.opened_file}", "w") as f:
     f.truncate(0)
     f.write('''{self.textbox.tb.toPlainText()}''')
 """)
-        QMessageBox(self, text=err).show() if err else None
+        if err:
+            QMessageBox(self, text=err).show()
+        else:
+            self.setWindowTitle("ALEX IDE")
     
     def f_directory_up(self):
         self.open_dir = self.open_dir.rpartition("/")[0] if self.open_dir != self.root_open_dir else self.open_dir
@@ -160,6 +181,9 @@ with open("{self.opened_file}", "w") as f:
             return
         open(self.open_dir + "/" + ew, "w").close()
         self.filebrowser.update(self.open_dir, self.root_open_dir)
+        self.opened_file = self.open_dir + "/" + ew
+        self.textbox.update(self.opened_file)
+        self.textbox.tb.setPlainText("")
 
     def f_delete_c_file(self):
         os.remove(self.open_dir + "/" + self.filebrowser.selected_item())
