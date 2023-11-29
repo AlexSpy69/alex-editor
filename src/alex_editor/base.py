@@ -14,7 +14,7 @@ import alex_editor.command_palette as command_palette
 class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
-        self.setWindowTitle("ALEX IDE")
+        self.setWindowTitle("ALEX EDITOR")
 
         # Infinite loop
         self.timer = QTimer(self)
@@ -41,9 +41,12 @@ class MainWindow(QMainWindow):
         create_n_dir.triggered.connect(self.f_create_new_dir)
         delete_c_dir = QAction("Delete Current Directory", self)
         delete_c_dir.triggered.connect(self.f_delete_c_dir)
+        open_t_in_c_dir = QAction("Open Terminal in Current Directory", self)
+        open_t_in_c_dir.triggered.connect(self.f_open_t_in_c_dir)
         file_menu.addAction(dir_open)
         file_menu.addAction(create_n_dir)
         file_menu.addAction(delete_c_dir)
+        file_menu.addAction(open_t_in_c_dir)
         file_menu.addSeparator()
         create_n_file = QAction("Create New File", self)
         create_n_file.triggered.connect(self.f_create_new_file)
@@ -79,6 +82,7 @@ class MainWindow(QMainWindow):
         # Command palette
         self.command_p = command_palette.CommandPalette()
         self.command_p.list_widget.itemActivated.connect(lambda: self.filebrowser.update(self.open_dir, self.root_open_dir))
+        self.command_p.hide()
 
         # Shortcuts
         QShortcut("Ctrl+O", self).activated.connect(self.f_open_dir)
@@ -92,13 +96,20 @@ class MainWindow(QMainWindow):
         pass
 
     def tb_text_changed(self):
+        if "\t" in self.textbox.tb.toPlainText():
+            original_cursor_position = self.textbox.tb.textCursor().position()
+            self.textbox.tb.setPlainText(self.textbox.tb.toPlainText().replace("\t", self.space))
+            cursor = self.textbox.tb.textCursor()
+            cursor.setPosition(original_cursor_position)
+            cursor.movePosition(QTextCursor.MoveOperation.WordRight)
+            self.textbox.tb.setTextCursor(cursor)
         if self.opened_file == "":
             return
         with open(self.opened_file) as f:
             if self.textbox.tb.toPlainText() == f.read():
-                self.setWindowTitle("ALEX IDE")
+                self.setWindowTitle("ALEX EDITOR")
             else:
-                self.setWindowTitle("ALEX IDE - Unsaved changes")
+                self.setWindowTitle("ALEX EDITOR - Unsaved changes")
 
     def tb_add_indent(self):
         if self.textbox.tb.toPlainText().endswith(':\n') or self.textbox.tb.toPlainText().endswith(self.space * (self.indent_level+1)):
@@ -169,7 +180,7 @@ with open("{self.opened_file}", "w") as f:
         if err:
             QMessageBox(self, text=err).show()
         else:
-            self.setWindowTitle("ALEX IDE")
+            self.setWindowTitle("ALEX EDITOR")
     
     def f_directory_up(self):
         self.open_dir = self.open_dir.rpartition("/")[0] if self.open_dir != self.root_open_dir else self.open_dir
@@ -190,6 +201,9 @@ with open("{self.opened_file}", "w") as f:
         self.filebrowser.update(self.open_dir, self.root_open_dir)
         self.textbox.ofile_lb.setText(
             self.textbox.ofile_lb.text() + "    <b><i>Deleted</i></b>")
+
+    def f_open_t_in_c_dir(self):
+        util.open_terminal(self.open_dir)
 
     def p_show(self):
         self.command_p.show()
