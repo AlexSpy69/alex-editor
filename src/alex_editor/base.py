@@ -57,6 +57,10 @@ class MainWindow(QMainWindow):
         file_menu.addAction(create_n_file)
         file_menu.addAction(save_c_file)
         file_menu.addAction(delete_c_file)
+        file_menu.addSeparator()
+        exit_m = QAction("Exit", self)
+        exit_m.triggered.connect(lambda: sys.exit(0))
+        file_menu.addAction(exit_m)
 
         # Tools
         tab_tools = QTabWidget(self)
@@ -140,7 +144,7 @@ class MainWindow(QMainWindow):
                 case "sh":
                     self.textbox.highlighter = syntax_highlighter.Sh(self.textbox.tb.document())
                 case "Plain text":
-                    self.textbox.highlighter = syntax_highlighter.Sh(self.textbox.tb.document())
+                    self.textbox.highlighter = syntax_highlighter.Nothing(self.textbox.tb.document())
         self.textbox.update(self.opened_file)
         self.command_p.opened_file = self.opened_file
         self.command_p.opened_file_type = self.opened_file_type

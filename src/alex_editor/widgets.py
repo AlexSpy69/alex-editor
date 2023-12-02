@@ -58,7 +58,7 @@ class TextBox(QFrame):
         layout.addWidget(self.ofile_lb)
         self.tb = QPlainTextEdit(self)
         self.tb.setFont(QFont("Monospace"))
-        self.highlighter = syntax_highlighter.Sh(self.tb.document())
+        self.highlighter = syntax_highlighter.Nothing(self.tb.document())
         layout.addWidget(self.tb)
 
     def update(self, opened_file_name) -> None:

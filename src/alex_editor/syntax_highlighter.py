@@ -123,3 +123,4 @@ class Sh(QSyntaxHighlighter):
 class Nothing(QSyntaxHighlighter):
     def __init__(self, *args, **kwargs):
         super(QSyntaxHighlighter, self).__init__(*args, *kwargs)
+        self.highlighting_rules = []
