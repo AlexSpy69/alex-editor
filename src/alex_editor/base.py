@@ -12,7 +12,7 @@ import alex_editor.util as util
 import alex_editor.command_palette as command_palette
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, argv):
         QMainWindow.__init__(self)
         self.setWindowTitle("ALEX EDITOR")
 
@@ -22,8 +22,12 @@ class MainWindow(QMainWindow):
         self.timer.start(0)
 
         # Current directory
-        self.root_open_dir = "/home/alexandru/Documents"
-        self.open_dir = self.root_open_dir + "/GitHub"
+        self.root_open_dir = ""
+        try:
+            self.root_open_dir = argv[1]
+        except IndexError:
+            self.f_open_dir_startup()
+        self.open_dir = self.root_open_dir
         self.opened_file = ""
         self.opened_file_type = "Plain text"
 
@@ -129,6 +133,12 @@ class MainWindow(QMainWindow):
             return
         self.root_open_dir, self.open_dir = filedialog, filedialog
         self.filebrowser.update(self.open_dir, self.root_open_dir)
+
+    def f_open_dir_startup(self):
+        filedialog = QFileDialog.getExistingDirectory(self, 'Select Folder')
+        if not filedialog:
+            sys.exit(0)
+        self.root_open_dir = filedialog
     
     def f_lb_select(self):
         if self.filebrowser.listwidget.selectedItems()[0].text().startswith("DIR"):
@@ -218,7 +228,7 @@ with open("{self.opened_file}", "w") as f:
 
 def main():
     app = QApplication(sys.argv)
-    root = MainWindow()
+    root = MainWindow(sys.argv)
     root.showMaximized()
     #root.show()
     sys.exit(app.exec())
