@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
         try:
             self.root_open_dir = argv[1]
         except IndexError:
-            self.f_open_dir_startup()
+            self.f_open_dir_startup_d()
         self.open_dir = self.root_open_dir
         self.opened_file = ""
         self.opened_file_type = "Plain text"
@@ -139,6 +139,12 @@ class MainWindow(QMainWindow):
         if not filedialog:
             sys.exit(0)
         self.root_open_dir = filedialog
+
+    def f_open_dir_startup_d(self):
+        ew = widgets.entry_window("Enter directory name")
+        if ew == "":
+            sys.exit(0)
+        self.root_open_dir = ew
     
     def f_lb_select(self):
         if self.filebrowser.listwidget.selectedItems()[0].text().startswith("DIR"):

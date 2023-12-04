@@ -69,7 +69,7 @@ class TextBox(QFrame):
 
 
 def entry_window(caption) -> str:
-    text, ok = QInputDialog.getText(QWidget(), "Entry window",
+    text, ok = QInputDialog.getText(QWidget(), caption,
         caption)
 
     if ok:
