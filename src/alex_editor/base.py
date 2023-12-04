@@ -1,6 +1,7 @@
 from PyQt6.QtCore import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
+from qt_material import apply_stylesheet
 
 import sys
 import os
@@ -159,7 +160,11 @@ class MainWindow(QMainWindow):
                     self.textbox.highlighter = syntax_highlighter.Cpp(self.textbox.tb.document())
                 case "sh":
                     self.textbox.highlighter = syntax_highlighter.Sh(self.textbox.tb.document())
+                case "HTML":
+                    self.textbox.highlighter = syntax_highlighter.Html(self.textbox.tb.document())
                 case "Plain text":
+                    self.textbox.highlighter = syntax_highlighter.Nothing(self.textbox.tb.document())
+                case _:
                     self.textbox.highlighter = syntax_highlighter.Nothing(self.textbox.tb.document())
         self.textbox.update(self.opened_file)
         self.command_p.opened_file = self.opened_file
@@ -232,8 +237,13 @@ with open("{self.opened_file}", "w") as f:
         self.command_p.update_commands()
         self.command_p.input_field.setPlaceholderText(f"Actions for {self.opened_file_type} file")
 
+qt_m_extra = {
+    "font_family": "Monospace"
+}
+
 def main():
     app = QApplication(sys.argv)
+    apply_stylesheet(app, theme="light_blue.xml", extra=qt_m_extra)
     root = MainWindow(sys.argv)
     root.showMaximized()
     #root.show()

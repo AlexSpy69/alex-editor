@@ -22,6 +22,8 @@ def get_file_type(filename) -> str:
         return "C/C++"
     elif filename.endswith(".sh"):
         return "sh"
+    elif filename.endswith(".html"):
+        return "HTML"
     elif filename.endswith(".txt"):
         return "Plain text"
     else:

@@ -120,7 +120,57 @@ class Sh(QSyntaxHighlighter):
                 self.setFormat(match.capturedStart(), match.capturedLength(), format)
 
 
+class Html(QSyntaxHighlighter):
+    def __init__(self, *args, **kwargs):
+        super(QSyntaxHighlighter, self).__init__(*args, **kwargs)
+        self.highlighting_rules = []
+
+        keyword_format = QTextCharFormat()
+        keyword_format.setForeground(Qt.GlobalColor.blue)
+        keyword_format.setFontWeight(99)  # Bold
+
+        tag_format = QTextCharFormat()
+        tag_format.setForeground(Qt.GlobalColor.magenta)
+
+        attribute_format = QTextCharFormat()
+        attribute_format.setForeground(Qt.GlobalColor.darkYellow)
+
+        value_format = QTextCharFormat()
+        value_format.setForeground(Qt.GlobalColor.darkGreen)
+
+        comment_format = QTextCharFormat()
+        comment_format.setForeground(Qt.GlobalColor.darkGray)
+        comment_format.setFontItalic(True)
+
+        keyword_patterns = [
+            r'\b' + keyword + r'\b' for keyword in
+            ['html', 'head', 'body', 'div', 'p', 'h[1-6]', 'span']
+        ]
+
+        tag_pattern = r'<\s*\w+\b'
+        attribute_pattern = r'\b\w+\s*=\s*\"[^\"]*\"'
+        value_pattern = r'\"[^\"]*\"'
+        comment_pattern = r'<!--.*-->'
+
+        self.highlighting_rules.extend(
+            (QRegularExpression(pattern), keyword_format) for pattern in keyword_patterns
+        )
+        self.highlighting_rules.append((QRegularExpression(tag_pattern), tag_format))
+        self.highlighting_rules.append((QRegularExpression(attribute_pattern), attribute_format))
+        self.highlighting_rules.append((QRegularExpression(value_pattern), value_format))
+        self.highlighting_rules.append((QRegularExpression(comment_pattern), comment_format))
+
+    def highlightBlock(self, text):
+        for pattern, char_format in self.highlighting_rules:
+            match_iterator = pattern.globalMatch(text)
+            while match_iterator.hasNext():
+                match = match_iterator.next()
+                self.setFormat(match.capturedStart(), match.capturedLength(), char_format)
+
 class Nothing(QSyntaxHighlighter):
     def __init__(self, *args, **kwargs):
         super(QSyntaxHighlighter, self).__init__(*args, *kwargs)
         self.highlighting_rules = []
+
+    def highlightBlock(self, text):
+        pass
