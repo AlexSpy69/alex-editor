@@ -39,7 +39,7 @@ class MainWindow(QMainWindow):
 
         # Menubar
         menu = self.menuBar()
-        file_menu = menu.addMenu("&File")
+        file_menu = menu.addMenu("File")
         dir_open = QAction("Open Root Directory...", self)
         dir_open.triggered.connect(self.f_open_dir)
         create_n_dir = QAction("Create New Directory", self)
@@ -67,6 +67,11 @@ class MainWindow(QMainWindow):
         exit_m.triggered.connect(lambda: sys.exit(0))
         file_menu.addAction(exit_m)
 
+        view_menu = menu.addMenu("View")
+        self.m_command_p = QAction("Command Palette")
+        self.m_command_p.triggered.connect(self.m_command_p_trig)
+        view_menu.addAction(self.m_command_p)
+
         # Tools
         tab_tools = QTabWidget(self)
         self.layout_.addWidget(tab_tools)
@@ -92,6 +97,7 @@ class MainWindow(QMainWindow):
         self.command_p = command_palette.CommandPalette()
         self.command_p.list_widget.itemActivated.connect(lambda: self.filebrowser.update(self.open_dir, self.root_open_dir))
         self.command_p.hide()
+        self.command_p.hidden = True
 
         # Shortcuts
         QShortcut("Ctrl+O", self).activated.connect(self.f_open_dir)
@@ -169,6 +175,8 @@ class MainWindow(QMainWindow):
         self.textbox.update(self.opened_file)
         self.command_p.opened_file = self.opened_file
         self.command_p.opened_file_type = self.opened_file_type
+        self.command_p.open_dir = self.open_dir
+        self.command_p.root_open_dir = self.root_open_dir
     
     def f_next_dir(self):
         self.open_dir += self.filebrowser.listwidget.selectedItems()[0].text().split("DIR    ")[1]
@@ -236,6 +244,13 @@ with open("{self.opened_file}", "w") as f:
         self.command_p.commands = self.command_p.actions[self.opened_file_type]
         self.command_p.update_commands()
         self.command_p.input_field.setPlaceholderText(f"Actions for {self.opened_file_type} file")
+
+    def m_command_p_trig(self):
+        self.command_p.hidden = not self.command_p.hidden
+        if self.command_p.hidden:
+            self.command_p.hide()
+        else:
+            self.command_p.show()
 
 qt_m_extra = {
     "font_family": "Monospace"

@@ -12,12 +12,15 @@ class CommandPalette(QWidget):
 
         self.opened_file = ""
         self.opened_file_type = "Plain text"
+        self.open_dir = ""
+        self.root_open_dir = ""
         self.commands = {}
         self.actions = {"Plain text": {}, "Python": {"Run": "python3 !fp/!fn",
             "Compile": "python3 -m py_compile !fp/!fn"}, "C/C++": {"Compile": "",
             "Compile and run": "", "Make": "", "Make and run": ""},
             "sh": {"Gain execution permission": "chmod +x !fp/!fn", "Run": "!fp/!fn"}}
 
+        self.hidden = False
         self.init_ui()
 
     def init_ui(self):
@@ -61,10 +64,11 @@ class CommandPalette(QWidget):
                 self.list_widget.addItem(item)
 
     def execute_command(self, item):
-        util.execute_command(self.actions[self.opened_file_type][item.text()] \
-            .replace("!fp", self.opened_file.rpartition("/")[0]) \
-            .replace("!fn", self.opened_file.rpartition("/")[2]), \
-            self.opened_file.rpartition("/")[0])
+        command = self.actions[self.opened_file_type][item.text()]
+        file_rp = self.opened_file.rpartition("/")
+        repl_command = util.replace(command, {"!fp": file_rp[0], "!fn": file_rp[2]})
+        util.execute_command(repl_command, file_rp[0])
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
